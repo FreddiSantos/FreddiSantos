@@ -5,7 +5,7 @@ I'm interested in applying machine learning to engineering problems, and I docum
 
 - 🧪 Member of **LIA** (Artificial Intelligence Lab) and **PET Engenharia Civil** at UFSCar
 - 🎯 Looking for: research projects, internships and collaborations in AI / data for engineering
-- 📫 Reach me on [LinkedIn](https://www.linkedin.com/in/SEU-PERFIL)
+- 📫 Reach me on [LinkedIn](https://www.linkedin.com/in/pedro-freddi-dos-santos-89328a408/)
 
 > 🇧🇷 Estudante de Engenharia Civil na UFSCar, migrando para Inteligência Artificial. Membro da LIA e do PET Civil. Aqui eu registro projetos e aprendizados em IA.
 
