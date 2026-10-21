@@ -38,7 +38,10 @@ def fetch_pinned(login: str, token: str) -> list[dict]:
     req = urllib.request.Request(
         "https://api.github.com/graphql",
         data=body,
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        headers={
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+        },
     )
     with urllib.request.urlopen(req, timeout=30) as resp:
         data = json.load(resp)
@@ -54,7 +57,9 @@ def render(repos: list[dict]) -> str:
     for r in repos:
         desc = (r.get("description") or "").replace("|", "\\|")
         lang = (r.get("primaryLanguage") or {}).get("name", "")
-        lines.append(f"| [{r['name']}]({r['url']}) | {desc} | {lang} | {r['stargazerCount']} |")
+        lines.append(
+            f"| [{r['name']}]({r['url']}) | {desc} | {lang} | {r['stargazerCount']} |"
+        )
     return "\n".join(lines)
 
 

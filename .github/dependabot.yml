@@ -1,0 +1,31 @@
+# Atualiza semanalmente as actions e os hooks do pre-commit.
+# lowlighter/metrics fica em @latest de propósito (canal estável recomendado pelo projeto).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pre-commit
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      pre-commit-hooks:
+        patterns: ["*"]
