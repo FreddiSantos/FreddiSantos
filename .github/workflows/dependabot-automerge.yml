@@ -1,0 +1,15 @@
+# Chama o workflow reutilizável de FreddiSantos/github-setup: auto-merge de PRs do
+# Dependabot minor/patch depois que os checks obrigatórios passam.
+# Para desativar: Actions > Dependabot auto-merge > "Disable workflow".
+name: Dependabot auto-merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    uses: FreddiSantos/github-setup/.github/workflows/reusable-dependabot-automerge.yml@main

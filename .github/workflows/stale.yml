@@ -1,0 +1,17 @@
+# Chama o workflow reutilizável de FreddiSantos/github-setup (as regras ficam lá).
+# Issues: aviso após 60 dias sem atividade; PRs: após 30 dias; fecha 14 dias depois do aviso.
+# Para desativar: Actions > Stale > "Disable workflow".
+name: Stale
+
+on:
+  schedule:
+    - cron: "0 10 * * *" # diário, 07:00 em Brasília
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    uses: FreddiSantos/github-setup/.github/workflows/reusable-stale.yml@main
