@@ -12,12 +12,16 @@ I'm interested in applying machine learning to engineering problems, and I docum
 ## 📌 Featured projects
 
 <!-- PINNED:START -->
-_Projects coming soon._
+| Project | Description | Language |
+|---|---|---|
+| [github-setup](https://github.com/FreddiSantos/github-setup) | Versioned configuration for my GitHub workflow: bootstrap, templates and automation. | Python |
+| [python-project-template](https://github.com/FreddiSantos/python-project-template) | Template for Python and data science projects: CI, linting, tests and community files ready to go. | Python |
+| [ai-learning-journey](https://github.com/FreddiSantos/ai-learning-journey) | My public log of learning AI as a civil engineering student: courses, projects, readings and milestones. | Python |
 <!-- PINNED:END -->
 
 ## 🚧 Currently working on
 
-- Building a public log of my AI learning journey
+- Documenting my path into AI in [ai-learning-journey](https://github.com/FreddiSantos/ai-learning-journey)
 - Studying deep learning and LLM-based agents, with an eye on civil engineering applications
 
 ## 🛠️ Stack
@@ -25,6 +29,5 @@ _Projects coming soon._
 - **Using:** Python · LLM APIs · Git & GitHub · AutoCAD · Revit (BIM) · Ftool
 - **Learning:** Deep learning (PyTorch) · LLMs & agents · AI applied to civil engineering
 
-## 📊 GitHub metrics
-
-![GitHub metrics](github-metrics.svg)
+<!-- METRICS:START -->
+<!-- METRICS:END -->

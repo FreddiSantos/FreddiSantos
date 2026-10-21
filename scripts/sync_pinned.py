@@ -1,4 +1,9 @@
-"""Atualiza a seção de projetos fixados do README a partir da API GraphQL do GitHub.
+"""Atualiza as seções automáticas do README do perfil.
+
+- PINNED: tabela com os repositórios fixados; se não houver nenhum fixado, usa os
+  repositórios públicos atualizados mais recentemente (sem forks e sem o próprio perfil).
+- METRICS: mostra a imagem github-metrics.svg só se o arquivo existir (evita imagem quebrada
+  enquanto o secret METRICS_TOKEN não estiver configurado).
 
 Uso: python scripts/sync_pinned.py README.md
 Variáveis: GITHUB_TOKEN (obrigatória), PROFILE_LOGIN (padrão: FreddiSantos).
@@ -10,30 +15,31 @@ import os
 import re
 import sys
 import urllib.request
+from pathlib import Path
 
-START, END = "<!-- PINNED:START -->", "<!-- PINNED:END -->"
+PINNED = ("<!-- PINNED:START -->", "<!-- PINNED:END -->")
+METRICS = ("<!-- METRICS:START -->", "<!-- METRICS:END -->")
 EMPTY = "_Projects coming soon._"
+METRICS_FILE = "github-metrics.svg"
+METRICS_BLOCK = f"## 📊 GitHub metrics\n\n![GitHub metrics]({METRICS_FILE})"
 
-QUERY = """
-query($login: String!) {
-  user(login: $login) {
-    pinnedItems(first: 6, types: REPOSITORY) {
-      nodes {
-        ... on Repository {
-          name
-          url
-          description
-          stargazerCount
-          primaryLanguage { name }
-        }
-      }
-    }
-  }
-}
+REPO_FIELDS = "name url description stargazerCount isFork primaryLanguage { name }"
+QUERY = f"""
+query($login: String!) {{
+  user(login: $login) {{
+    pinnedItems(first: 6, types: REPOSITORY) {{
+      nodes {{ ... on Repository {{ {REPO_FIELDS} }} }}
+    }}
+    repositories(first: 10, privacy: PUBLIC, ownerAffiliations: OWNER,
+                 orderBy: {{field: PUSHED_AT, direction: DESC}}) {{
+      nodes {{ {REPO_FIELDS} }}
+    }}
+  }}
+}}
 """
 
 
-def fetch_pinned(login: str, token: str) -> list[dict]:
+def fetch_featured(login: str, token: str) -> list[dict]:
     body = json.dumps({"query": QUERY, "variables": {"login": login}}).encode()
     req = urllib.request.Request(
         "https://api.github.com/graphql",
@@ -47,40 +53,46 @@ def fetch_pinned(login: str, token: str) -> list[dict]:
         data = json.load(resp)
     if "errors" in data:
         raise RuntimeError(data["errors"])
-    return data["data"]["user"]["pinnedItems"]["nodes"]
+    user = data["data"]["user"]
+    pinned = user["pinnedItems"]["nodes"]
+    if pinned:
+        return pinned
+    recent = user["repositories"]["nodes"]
+    return [r for r in recent if not r["isFork"] and r["name"] != login][:6]
 
 
 def render(repos: list[dict]) -> str:
     if not repos:
         return EMPTY
-    lines = ["| Project | Description | Language | ⭐ |", "|---|---|---|---|"]
+    lines = ["| Project | Description | Language |", "|---|---|---|"]
     for r in repos:
         desc = (r.get("description") or "").replace("|", "\\|")
         lang = (r.get("primaryLanguage") or {}).get("name", "")
-        lines.append(
-            f"| [{r['name']}]({r['url']}) | {desc} | {lang} | {r['stargazerCount']} |"
-        )
+        lines.append(f"| [{r['name']}]({r['url']}) | {desc} | {lang} |")
     return "\n".join(lines)
 
 
+def replace(readme: str, markers: tuple[str, str], content: str) -> str:
+    start, end = markers
+    pattern = re.compile(re.escape(start) + r".*?" + re.escape(end), re.DOTALL)
+    if not pattern.search(readme):
+        raise ValueError(f"Marcadores {start} / {end} não encontrados.")
+    inner = f"\n{content}\n" if content else "\n"
+    return pattern.sub(lambda _: f"{start}{inner}{end}", readme)
+
+
 def main() -> int:
-    path = sys.argv[1] if len(sys.argv) > 1 else "README.md"
+    path = Path(sys.argv[1] if len(sys.argv) > 1 else "README.md")
     token = os.environ["GITHUB_TOKEN"]
     login = os.environ.get("PROFILE_LOGIN", "FreddiSantos")
 
-    with open(path, encoding="utf-8") as f:
-        readme = f.read()
+    readme = path.read_text(encoding="utf-8")
+    updated = replace(readme, PINNED, render(fetch_featured(login, token)))
+    has_metrics = (path.parent / METRICS_FILE).exists()
+    updated = replace(updated, METRICS, METRICS_BLOCK if has_metrics else "")
 
-    pattern = re.compile(re.escape(START) + r".*?" + re.escape(END), re.DOTALL)
-    if not pattern.search(readme):
-        print(f"Marcadores {START} / {END} não encontrados em {path}.", file=sys.stderr)
-        return 1
-
-    block = f"{START}\n{render(fetch_pinned(login, token))}\n{END}"
-    updated = pattern.sub(lambda _: block, readme)
     if updated != readme:
-        with open(path, "w", encoding="utf-8", newline="\n") as f:
-            f.write(updated)
+        path.write_text(updated, encoding="utf-8", newline="\n")
         print("README atualizado.")
     else:
         print("README já estava em dia.")
