@@ -18,12 +18,12 @@ _Projects coming soon._
 ## 🚧 Currently working on
 
 - Building a public log of my AI learning journey
-- Studying the fundamentals of machine learning with Python
+- Studying deep learning and LLM-based agents, with an eye on civil engineering applications
 
 ## 🛠️ Stack
 
-**Using:** Python · Jupyter · Git & GitHub
-**Learning:** NumPy · pandas · scikit-learn
+- **Using:** Python · LLM APIs · Git & GitHub · AutoCAD · Revit (BIM) · Ftool
+- **Learning:** Deep learning (PyTorch) · LLMs & agents · AI applied to civil engineering
 
 ## 📊 GitHub metrics
 
