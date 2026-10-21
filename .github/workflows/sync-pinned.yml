@@ -1,0 +1,39 @@
+# Reescreve a seção "Featured projects" do README a partir dos repositórios fixados.
+# Usa só o GITHUB_TOKEN padrão (pinnedItems é dado público).
+# Para desativar: Actions > Sync pinned projects > "Disable workflow".
+name: Sync pinned projects
+
+on:
+  schedule: [{ cron: "0 7 * * 1" }] # segundas, 04:00 em Brasília
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-pinned
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Update README
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROFILE_LOGIN: ${{ github.repository_owner }}
+        run: python scripts/sync_pinned.py README.md
+      - name: Commit if changed
+        run: |
+          if git diff --quiet; then
+            echo "Nada mudou."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "docs(readme): sync featured projects with pinned repos"
+          git push
